@@ -1,0 +1,208 @@
+---
+title: "Atelier 5"
+author: "Nom et Prenom"
+date: "16/11/2019"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Indice de masse corporelle (IMC) chez des enfants
+
+Un échantillon de dossiers d'enfants a ete saisi. Ce sont des enfants vus lors
+d'une visite en 1er section de maternelle en 1996-1997 dans des ecoles de 
+Bordeaux (Gironde, France). L’échantillon est constitue de 152 enfants ages de 3
+ou 4 ans. 
+
+### Variables et codage
+
+\begin{tabular}{|l|c|c|}
+\hline
+Description & Unite ou Codage & Variable \\
+\hline
+Sexe & \texttt{F} pour fille ; \texttt{G} pour garcon & \texttt{SEXE} \\
+\hline
+Ecole située en zone d'education prioritaire & \texttt{O} pour oui; \texttt{N} pour non & \texttt{zep} \\
+\hline
+Poids & \texttt{Kg} (arrondi à 100g près) & \texttt{poids} \\
+\hline
+Âge à la date de la visite & Années & \texttt{an} \\
+\hline
+Âge à la date de la visite & Mois & \texttt{mois} \\
+\hline
+Taille & Cm  (arrondi à 0.5cm près) & \texttt{taille} \\
+\hline
+\end{tabular}
+
+Vous avez de telecharcher le fichier \texttt{imcenfant.csv} de le site:
+
+\url{https://github.com/afalco/Atelier5/}
+
+
+
+```{r}
+imcenfant <- read.csv2("~/Downloads/Atelier5-master/imcenfant.csv")
+names(imcenfant)
+```
+
+et de répondre a toutes les questions suivantes:
+
+
+ 1. Calculer l'IMC de tous les enfants et l'âge et rajoutez une colonne pour l'âge et une autre pour l' IMC.
+ 
+```{r}
+#Utiliser pour repondre la question 1
+IMC <- imcenfant$poids/(imcenfant$taille/100)^2
+age<-imcenfant$an+imcenfant$mois/12
+imcenfant<-data.frame(imcenfant,age,IMC)
+```
+
+Commentaire:
+
+ 2. Extrayez les enfants ayant un IMC < 15 et un age <= 3.5 ans.
+ 
+```{r}
+# Utiliser pour repondre la question 2
+enfants<- imcenfant$SEXE[imcenfant$IMC < 15 & imcenfant$age<= 3.5]
+enfants
+```
+
+Commentaire:
+
+ 3. Donnez le nombre d'enfants vérifiant les conditions ci-dessus.
+ 
+```{r}
+# Utiliser pour repondre la question 3
+length(enfants)
+```
+ 
+Commentaire:
+
+ 4. Est-ce que la plus part des enfants ayant un IMC < 15 et un age <= 3.5 ans sont dans une école située en zone d’éducation prioritaire?
+ 
+```{r}
+# Utiliser pour repondre la question 4
+zone <- imcenfant$zep[imcenfant$IMC < 15 & imcenfant$age<= 3.5]
+zone
+table(zone)
+```
+ 
+ Commentaire:
+
+ 5. Représentez la fonction de densité de probabilité de l'IMC chez l'échantillon.
+ 
+```{r}
+# Utiliser pour repondre la question 4
+hist(imcenfant$IMC,freq= FALSE,col="dark orange",xlab="IMC")
+```
+ 
+ Commentaire:
+
+
+  6. Est-ce on peut modelé l'IMC avec une variable aléatoire normale?
+  
+  
+
+6.1. Montrer que la différence entre la médiane et la moyenne est très petite et alors on peut supposer que les deux sont égales.  
+    
+```{r}
+# Utiliser pour repondre la question 6.1
+mean(imcenfant$IMC)
+median(imcenfant$IMC)
+mean(imcenfant$IMC)-median(imcenfant$IMC)
+```
+ 
+Commentaire:
+
+
+6.2 Utilisez la fonction \texttt{qqplot()} pour étudier si l'IMC a le même fonction de distribution que une variable alèatoire normal. 
+  
+```{r}
+# Utiliser pour repondre la question 6.2
+z <- (imcenfant$IMC-mean(imcenfant$IMC))/sd(imcenfant$IMC)
+n <- length(z)
+N <- rnorm(n)
+qqplot(z,N,xlim=c(-3,3),ylim=c(-3,3),xlab="IMC std",ylab="Normal")
+par(new=T)
+plot(z,z,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),xlab="",ylab="")
+```
+  
+Commentaire:
+  
+6.3 Est-qu'on peut quantifier la différence entre les deux fonctions de distributions?
+  
+```{r}
+# Utiliser pour repondre la question 6.3
+```
+Commentaire:
+
+ 
+ 7. Est-ce que l'IMC chez les enfants dans une école située en zone d’éducation prioritaire est différent de les enfants qui ne sont pas dans une école située en zone d’éducation prioritaire?
+ 
+7.1 Donnez le résumé statistique de l'IMC chez les enfants dans une école située en zone d’éducation prioritaire.
+
+```{r}
+# Utiliser pour repondre la question 7.1
+IMC.zepO <- imcenfant$IMC[imcenfant$zep=="O"]
+summary(IMC.zepO)
+```
+
+Commentaire:
+ 
+7.2 Donnez le résumé statistique de l'IMC chez les enfants que ne sont pas dans une école située en zone d’éducation prioritaire. 
+
+```{r}
+# Utiliser pour repondre la question 7.2
+IMC.zepN <- imcenfant$IMC[imcenfant$zep=="N"]
+summary(IMC.zepN)
+```
+ 
+ Commentaire:
+
+
+  8. Quelle est la probabilité de trouver une fille dans dans une école située en zone d’éducation prioritaire?
+  
+```{r}
+# Utiliser pour repondre la question 8
+n.enfants.zepO <-length(imcenfant$SEXE[imcenfant$zep=="O"])
+n.enfants.zepO
+population <- length(imcenfant$SEXE)
+population
+proba.zepO <- n.enfants.zepO/population
+proba.zepO
+n.F.et.zepO<-length(imcenfant$poids[imcenfant$SEXE=="F" & imcenfant$zep=="O"])
+n.F.et.zepO
+proba.F.et.zepO <- (n.F.et.zepO/population)/proba.zepO
+proba.F.et.zepO
+```
+
+  9. Est-ce qu'on peut modelé la taille des enfants avec un variable aléatoire normal?
+  
+```{r}
+# Utiliser pour repondre la question 9
+z <- (imcenfant$taille-mean(imcenfant$taille))/sd(imcenfant$taille)
+n <- length(z)
+N <- rnorm(n)
+qqplot(z,N,xlim=c(-3,3),ylim=c(-3,3),xlab="IMC std",ylab="Normal")
+par(new=T)
+plot(z,z,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),xlab="",ylab="")
+
+```
+  
+  Commentaire:
+  
+  10. Est-ce qu'on peut modelé le poids des enfants avec un variable aléatoire normal?
+
+```{r}
+# Utiliser pour repondre la question 10
+z <- (imcenfant$poids-mean(imcenfant$poids))/sd(imcenfant$poids)
+n <- length(z)
+N <- rnorm(n)
+qqplot(z,N,xlim=c(-3,3),ylim=c(-3,3),xlab="IMC std",ylab="Normal")
+par(new=T)
+plot(z,z,type="l",col="red",xlim=c(-3,3),ylim=c(-3,3),xlab="",ylab="")
+```
+
+  Commentaire:
